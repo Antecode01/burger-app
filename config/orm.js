@@ -1,7 +1,7 @@
-var connection = require("../config/connection");
+const connection = require("../config/connection");
 
 function createQmarks(num) {
-  var arr = [];
+  let arr = [];
   for (var i = 0; i < num; i++) {
     arr.push("?");
   }
@@ -9,7 +9,7 @@ function createQmarks(num) {
 }
 
 function translateSql(ob) {
-  var arr = [];
+  let arr = [];
 
   // loop through the keys and push the key/value as a string int arr
   for (var key in ob) {
@@ -31,7 +31,7 @@ function translateSql(ob) {
 const orm = {
   selectAll: function (table, cb) {
     let dbQuery = "SELECT * FROM " + table + ";";
-    console.log(q);
+    console.log(dbQuery);
 
     connection.query(dbQuery, function (err, res) {
       if (err) {
