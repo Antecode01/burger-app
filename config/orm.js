@@ -1,76 +1,93 @@
-const conn = require("./connection.js");
+var connection = require("../config/connection");
 
+function createQmarks(num) {
+  var arr = [];
+  for (var i = 0; i < num; i++) {
+    arr.push("?");
+  }
+  return arr.toString();
+}
 
-const qMarks = (count) => {
-    var arr = [];
+function translateSql(ob) {
+  var arr = [];
 
-    for (var i = 0; i < count; i++) {
-      arr.push("?");
-    }
-
-    return arr.toString();
-  };
-
-const convToSql = (object) => {
-    var arr = [];
-
-    // loop through the keys and push the key/value as a string int arr
-    for (var key in object) {
-      var value = object[key];
-      // check to skip hidden properties
-      if (Object.hasOwnProperty.call(object, key)) {
-        // if string with spaces, add quotations (Lana Del Grey => 'Lana Del Grey')
-        if (typeof value === "string" && value.indexOf(" ") >= 0) {
-          value = "'" + value + "'";
-        }
-        // e.g. {name: 'Lana Del Grey'} => ["name='Lana Del Grey'"]
-        // e.g. {sleepy: true} => ["sleepy=true"]
-        arr.push(key + "=" + value);
+  // loop through the keys and push the key/value as a string int arr
+  for (var key in ob) {
+    var value = ob[key];
+    // check to skip hidden properties
+    if (Ob.hasOwnProperty.call(ob, key)) {
+      // if string with spaces, add quotations (Lana Del Grey => 'Lana Del Grey')
+      if (typeof value === "string" && value.indexOf(" ") >= 0) {
+        value = "'" + value + "'";
       }
+      // e.g. {name: 'Lana Del Grey'} => ["name='Lana Del Grey'"]
+      // e.g. {sleepy: true} => ["sleepy=true"]
+      arr.push(key + "=" + value);
     }
+  }
+  return arr.toString();
 }
 
 const orm = {
-    selectAll: function(table, cb){
-        let q = "SELECT * FROM " + table + ";";
-        console.log(q);
+  selectAll: function (table, cb) {
+    let dbQuery = "SELECT * FROM " + table + ";";
+    console.log(q);
 
-        conn.query(q, function(err, data){
-            if (err) {
-                throw err;
-            }
-            cb(data);
-        });
-    },
-    insertOne: function(table, columns, values, cb){
-        let q = "INSERT INTO " + table + "(" ;
-        q+= columns.toString() + ") VALUES (";
-        q+= qMarks(values.length) + ") ";
-        console.log(q);
+    connection.query(dbQuery, function (err, res) {
+      if (err) {
+        throw err;
+      }
+      cb(res);
+    });
+  },
+  insertOne: function (table, cols, vals, cb) {
+    var dbQuery =
+      "INSERT INTO " +
+      table +
+      " (" +
+      cols.toString() +
+      ") " +
+      "VALUES (" +
+      createQmarks(vals.length) +
+      ") ";
 
-        conn.query(q, (err, result) => {
-            if (err) {
-                throw err;
-            }
-            console.log(result);
-            cb(result);
-        });
-    },
-    updateOne: function(table, columnValuesObj, condition, cb){
-        let q = "UPDATE " + table + " SET ";
-        q += convToSql(columnValuesObj);
-        q += " WHERE " + condition +";";
+    console.log(dbQuery);
+    connection.query(dbQuery, vals, function (err, res) {
+      if (err) {
+        throw err;
+      }
+      cb(res);
+    });
+  },
+  updateOne: function (table, objColVals, condition, cb) {
+    var dbQuery =
+      "UPDATE " +
+      table +
+      " SET " +
+      translateSql(objColVals) +
+      " WHERE " +
+      condition;
 
-        console.log(q);
+    console.log(dbQuery);
 
-        conn.query(q, (err,result) => {
-            if (err) {
-                throw err;
-            }
-            console.log(result);
-            cb(result);
-        })
-    }
-}
+    connection.query(dbQuery, function (err, res) {
+      if (err) {
+        throw err;
+      }
+      cb(res);
+    });
+  },
+  deleteOne: function (table, condition, cb) {
+    var dbQuery = "DELETE FROM " + table + " WHERE " + condition;
+    console.log(dbQuery);
 
-module.exports = orm; 
+    connection.query(dbQuery, function (err, res) {
+      if (err) {
+        throw err;
+      }
+      cb(res);
+    });
+  },
+};
+
+module.exports = orm;
